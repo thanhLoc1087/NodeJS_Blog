@@ -4,15 +4,20 @@ const path = require('path');
 const { engine } = require('express-handlebars');
 const app = express();
 const port = 3000;
+const route = require('./routes');
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(express.urlencoded({
+  extended: true
+}));
+app.use(express.json());
+
 // HTTP logger
 app.use(morgan('combined'));
 
-// route
-app.get('/main', (req, res) => {
-  res.render('home');
-})
+// route init
+route(app);
 
 // Template engine
 app.engine('hbs', engine({
