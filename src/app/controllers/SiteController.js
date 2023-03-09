@@ -1,16 +1,16 @@
 const Post = require('../models/Post')
+const mongoose = require('../../util/mongoose')
 
 class SiteController {
   // [GET] /
-  index(req, res) {
-    // Post.find({}, function(err, Posts) {
-    //   if (!err) {
-    //     res.json(Posts);
-    //   } else {
-    //     res.status(400).json({error: "ERROR!!"})
-    //   }
-    // })
-    res.render('home');
+  index(req, res, next) {
+    Post.find({})
+      .then(Posts => {
+        res.render('home', {
+          Posts: mongoose.mogoosesToObjects(Posts)
+        })
+      })
+      .catch(next)
   }
   // [GET] /search
   search(req, res) {
