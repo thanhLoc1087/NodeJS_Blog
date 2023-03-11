@@ -12,9 +12,14 @@ class SiteController {
       })
       .catch(next)
   }
+
   // [GET] /search
   search(req, res) {
-    res.render('search');
+    res.render('search')
+  }
+  // [POST] /search
+  searchPost(req, res) {
+    res.json(req.body);
   }
 }
 
