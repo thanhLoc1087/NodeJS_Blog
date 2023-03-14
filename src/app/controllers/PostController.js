@@ -1,5 +1,6 @@
 const Post = require('../models/Post')
-const mongoose = require('../../util/mongoose')
+const mongoose = require('../../util/mongoose');
+const { post } = require('../../routes/post');
 
 class PostController {
   // [GET] /post/:slug
@@ -21,13 +22,29 @@ class PostController {
   // [POST] /post/store
   store(req, res, next) {
     const formData = req.body;
-    formData.image = `https://img.youtube.com/vi/${req.body.image}/sddefault.jpg`;
     const post = new Post(formData);
-    post.save()
-    .then(() => res.redirect('/'))
-    .catch((error) => {
-
-    }) 
+    post
+      .save()
+      .then(() => res.redirect('/'))
+      .catch((error) => {})
+  }
+  
+  // [GET] /post/:id/edit
+  edit(req, res, next) {
+    Post.findById(req.params.id)
+      .then(post =>
+        res.render('post/edit', {
+          post: mongoose.mongooseToObject(post)
+        }),
+      )
+      .catch(next)
+  }
+  
+  // [PUT] /post/:id
+  save(req, res, next) {
+    Post.updateOne({ _id: req.params.id }, req.body)
+      .then(() => res.redirect('/me/posts'))
+      .catch(next)
   }
 }
 

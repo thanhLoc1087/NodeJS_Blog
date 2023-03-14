@@ -1,11 +1,8 @@
 @import 'variables';
 
-.test {
-  font-size: 1rem;
-  background-color: aliceblues;
-  width: 100px;
-}
-
-h1 {
-  color: $red_color;
+.user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  margin-right: 4px;
 }
