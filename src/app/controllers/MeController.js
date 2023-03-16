@@ -12,7 +12,15 @@ class MeController {
   }
   // [GET] /me/saved
   meSaved(req, res, next) {
-    res.render('me/meSaved')
+    res.render('me/meSaved');
+  }
+  // [GET] /me/trash/posts
+  meTrashPost(req, res, next) {
+    Post.findDeleted({})
+    .then(posts => res.render('me/meTrashPosts', {
+      posts: mongoose.mogoosesToObjects(posts),
+    }))
+    .catch(next);
   }
 
 }
