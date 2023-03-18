@@ -1,42 +1,64 @@
-<div class="mt-4">
+<form class="mt-4" name="container-form" action="/post/handle-form-action" method="POST">
   <div>
     <h3>My Posts</h3>
-    <a href="/me/trash/posts">Trash</a>
+    {{!-- {{#if deletedCount}} --}}
+    <a href="/me/trash/posts">Trashed posts ({{deletedCount}})</a>
+    {{!-- {{/if}} --}}
+    <div class="mt-4 d-flex align-items-center">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" value="" id="checkboxAll">
+        <label class="form-check-label" for="checkboxAll">
+          Select all
+        </label>
+      </div>
+      <select name="action" id="" class="form-select form-select-sm checkbox-select-all" required>
+        <option value="">--Choose action--</option>
+        <option value="delete">Delete</option>
+      </select>
+      <button type="button" class="btn btn-primary btn-sm disabled apply-action-btn">Apply</button>
+    </div>
   </div>
-    <table class="table">
-        <thead>
-            <tr>
-            <th scope="col">#</th>
-            <th scope="col">Title</th>
-            <th scope="col">Created</th>
-            <th scope="col">Description</th>
-            <th scope="col"></th>
-            </tr>
-        </thead>
-        <tbody>
-            {{#each posts}}
-            <tr>
-                <th scope="row">{{sum @index 1}}</th>
-                <td>{{this.title}}</td>
-                <td>{{dateFormat this.createdAt "LLL"}}</td>
-                <td>{{this.description}}</td>
-                <td>
-                    <a href="/post/{{this._id}}/edit" class="btn btn-link">Edit</a>
-                    <a href="" class="btn btn-link" data-bs-toggle="modal" data-id="{{this._id}}" data-bs-target="#deletePostModal">Delete</a>
-                </td>
-            </tr>
-            {{else}}
-            <tr>
-              <td colspan="5" class="text-center">
-                Babe, you haven't posted anything yet.
-                <a href="/post/create">Post something.</a>
+  <table class="table">
+      <thead>
+          <tr>
+          <th scope="col"></th>
+          <th scope="col">#</th>
+          <th scope="col">Title</th>
+          <th scope="col">Created</th>
+          <th scope="col">Description</th>
+          <th scope="col"></th>
+          </tr>
+      </thead>
+      <tbody>
+          {{#each posts}}
+          <tr>
+              <td>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="{{this._id}}" name="postIds[]">
+                </div>
               </td>
-            </tr>
-            {{/each}}
-        </tbody>
-    </table>
-    <a type="button" class="btn btn-primary" href="/post/create">Creat new post</a>
-</div>
+              <th scope="row">{{sum @index 1}}</th>
+              <td>{{this.title}}</td>
+              <td>{{dateFormat this.createdAt "LLL"}}</td>
+              <td>{{this.description}}</td>
+              <td>
+                  <a href="/post/{{this._id}}/edit" class="btn btn-link">Edit</a>
+                  <a href="" class="btn btn-link" data-bs-toggle="modal" data-id="{{this._id}}" data-bs-target="#deletePostModal">Delete</a>
+              </td>
+          </tr>
+          {{else}}
+          <tr>
+            <td colspan="5" class="text-center">
+              Babe, you haven't posted anything yet.
+              <a href="/post/create">Post something.</a>
+            </td>
+          </tr>
+          {{/each}}
+      </tbody>
+  </table>
+  <a type="button" class="btn btn-primary" href="/post/create">Creat new post</a>
+</form>
+
 
 {{!-- CONFIRM DELETE POST --}}
 
@@ -65,6 +87,11 @@
     let postId;
     const delForm = document.forms['delete-post-form'];
     const delBtn = document.getElementById('btn-delete-post');
+    const allChkbx = document.getElementById('checkboxAll');
+    const postsChkbox = document.querySelectorAll('input[name="postIds[]"]')
+    const btnApplyAction = document.querySelector('.apply-action-btn')
+    const selectAction = document.querySelector('select[name="action"]')
+    const formContainer = document.querySelector('form[name="container-form"]')
 
     const deletePostModal = document.getElementById('deletePostModal');
     deletePostModal.addEventListener('show.bs.modal', event => { 
@@ -78,4 +105,43 @@
         delForm.action = `/post/${postId}?_method=DELETE`;
         delForm.submit();
     }
+
+    // Select all Changed
+    allChkbx.onchange = (e) => {
+      let isCheckedAll = allChkbx.checked;
+      postsChkbox.forEach(postChkbox => postChkbox.checked = isCheckedAll);
+      renderApplyBtn();
+    }
+
+    // Post item checkbox changed
+    postsChkbox.forEach((postChkbox, index) => {
+      postChkbox.onchange = () => {
+        let isAllItemChecked = postsChkbox.length === document.querySelectorAll('input[name="postIds[]"]:checked').length;
+        allChkbx.checked = isAllItemChecked;
+        renderApplyBtn();
+      }
+    });
+
+    // Apply action btn clicked
+    btnApplyAction.onclick = (e) => {
+      let isSubmitable = !btnApplyAction.classList.contains('disabled');
+      if (isSubmitable) {
+        formContainer.submit();
+      } else {
+        e.preventDefaultbehaviour();
+      }
+    }
+
+    // RE-render that apply button to execute the action
+    function renderApplyBtn() {
+      var countCheckedItem = document.querySelectorAll('input[name="postIds[]"]:checked').length;
+      if (countCheckedItem > 0 && selectAction.value !== '') {
+        btnApplyAction.classList.remove('disabled');
+      } else {
+        btnApplyAction.classList.add('disabled');
+      }
+    }
+
+    // Action combox changed
+    selectAction.onchange = () => renderApplyBtn();
 </script>

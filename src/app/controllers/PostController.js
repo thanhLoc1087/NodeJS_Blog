@@ -27,6 +27,37 @@ class PostController {
     .then(() => res.redirect('/me/posts'))
     .catch(next) 
   }
+
+  // [POST] /post/handle-form-action
+  handleFormAction(req, res, next) {
+    switch(req.body.action) {
+      case 'delete':
+        Post.delete({_id: {$in: req.body.postIds}})
+        .then(()=>res.redirect('back'))
+        .catch(next)
+        break;
+      default:
+        res.json('[ERROR] Ivalid action!')
+    }
+  }
+
+  // [POST] /post/trashed/handle-form-action
+  handleTrashFormAction(req, res, next) {
+    switch(req.body.action) {
+      case 'restore': 
+        Post.restore({ _id: {$in: req.body.postIds}})
+        .then(() => res.redirect('back'))
+        .catch(next)
+        break;
+      case 'delete':
+        Post.deleteOne({_id: {$in: req.body.postIds}})
+        .then(()=>res.redirect('back'))
+        .catch(next)
+        break;
+      default:
+        res.json('[ERROR] Ivalid action!')
+    }
+  }
   
   // [GET] /post/:id/edit
   edit(req, res, next) {

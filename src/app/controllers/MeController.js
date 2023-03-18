@@ -4,11 +4,14 @@ const mongoose = require('../../util/mongoose')
 class MeController {
   // [GET] /me/posts
   mePosts(req, res, next) {
-    Post.find({})
-    .then(posts => res.render('me/mePosts', {
-      posts: mongoose.mogoosesToObjects(posts),
-    }))
-    .catch(next);
+    Promise.all([Post.find({}), Post.countDocumentsDeleted()])
+    .then(([posts, deletedCount]) => {
+      res.render('me/mePosts', {
+        deletedCount,
+        posts: mongoose.mogoosesToObjects(posts),
+      })
+    })
+    .catch(next)
   }
   // [GET] /me/saved
   meSaved(req, res, next) {
