@@ -4,7 +4,14 @@ const mongoose = require('../../util/mongoose')
 class MeController {
   // [GET] /me/posts
   mePosts(req, res, next) {
-    Promise.all([Post.find({}), Post.countDocumentsDeleted()])
+    let postQuery = Post.find({});
+    if (req.query.hasOwnProperty('_sort')) {
+      postQuery = postQuery.sort({
+        [req.query.column]: req.query.type,
+      })
+    }
+
+    Promise.all([postQuery, Post.countDocumentsDeleted()])
     .then(([posts, deletedCount]) => {
       res.render('me/mePosts', {
         deletedCount,
